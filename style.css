@@ -388,7 +388,7 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-u
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user img {
-	max-height: 80vh;
+	max-height: 70vh;
 	width: auto;
 	object-fit: contain;
 }
