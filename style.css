@@ -388,3 +388,14 @@ body.waifuMode.userSprite #expression-prome-user {
 #visual-novel-wrapper {
 	contain: layout style;
 }
+
+/* Hide Sprite Button */
+#prome-hide-sprite-btn {
+	cursor: pointer;
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+}
+
+#prome-hide-sprite-btn:hover {
+	opacity: 1;
+}

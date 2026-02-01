@@ -90,6 +90,12 @@ import {
 	setupScaleHTML,
 	setupScaleJQuery,
 } from "./modules/scale.js";
+import {
+	initHideSprite,
+	resetHiddenSprites,
+	setupHideSpriteButton,
+	syncHideSpriteButtonState,
+} from "./modules/hide-sprite.js";
 import { visualNovelUpdateLayers } from "../../expressions/index.js";
 
 async function loadSettings() {
@@ -306,20 +312,25 @@ jQuery(async () => {
 	setupAutoHideJQuery();
 	loadSettings();
 	prepareSlashCommands();
+	setupHideSpriteButton();
+	await initHideSprite();
 
 	eventSource.on(event_types.MESSAGE_SWIPED, applyShakeDebounce);
 	eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, stopShake);
 	eventSource.on(event_types.CHAT_CHANGED, async () => {
 		await applyZoomDebounce();
+		syncHideSpriteButtonState();
 		await applyDefocusDebounce();
 		await applyScaleDebounce();
 		await emulateSpritesDebounce();
 		await handleUserSprite();
 		await applyUserAttributesDebounce();
 		handleAutoHideSprites();
+		resetHiddenSprites();
 	});
 	eventSource.on(event_types.MESSAGE_DELETED, async () => {
 		await applyZoomDebounce();
+		syncHideSpriteButtonState();
 		await applyDefocusDebounce();
 		handleAutoHideSprites();
 	});
@@ -385,6 +396,7 @@ $(document).ready(() => {
 				if (node.classList.contains("mes")) {
 					handleAutoHideSprites();
 					applyZoomDebounce();
+					syncHideSpriteButtonState();
 					applyDefocusDebounce();
 					applyShakeDebounce();
 
@@ -398,6 +410,7 @@ $(document).ready(() => {
 				) {
 					handleAutoHideSprites();
 					applyZoomDebounce();
+					syncHideSpriteButtonState();
 					applyDefocusDebounce();
 
 					if (isGroupChat()) {
