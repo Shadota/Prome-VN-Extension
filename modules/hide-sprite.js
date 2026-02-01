@@ -177,8 +177,22 @@ function getNextState(current) {
  */
 function applySpriteState(spriteId, sprite, img, state) {
     const src = getSpriteSrcForState(state, spriteId);
-    if (src) {
-        img.attr("src", src);
+
+    // Handle INVISIBLE state - use CSS if no placeholder image available
+    if (state === SPRITE_STATES.INVISIBLE) {
+        if (src) {
+            img.attr("src", src);
+            img.css("visibility", "");
+        } else {
+            // No placeholder image - hide via CSS
+            img.css("visibility", "hidden");
+        }
+    } else {
+        // Non-invisible state - restore visibility and set src
+        img.css("visibility", "");
+        if (src) {
+            img.attr("src", src);
+        }
     }
 }
 
@@ -197,11 +211,31 @@ function reapplySpriteState(spriteId) {
     const imgs = sprite.find("img");
 
     imgs.each(function() {
-        const currentSrc = $(this).attr("src");
-        if (currentSrc && currentSrc !== src) {
-            // Store the latest original src
-            originalSrcMap.set(spriteId, currentSrc);
-            $(this).attr("src", src);
+        const $img = $(this);
+        const currentSrc = $img.attr("src");
+
+        // Handle INVISIBLE state
+        if (state === SPRITE_STATES.INVISIBLE) {
+            if (currentSrc) {
+                // Store the latest original src
+                originalSrcMap.set(spriteId, currentSrc);
+            }
+            if (src) {
+                $img.attr("src", src);
+                $img.css("visibility", "");
+            } else {
+                // No placeholder - hide via CSS
+                $img.css("visibility", "hidden");
+            }
+        } else {
+            // Non-invisible state
+            if (currentSrc && currentSrc !== src) {
+                originalSrcMap.set(spriteId, currentSrc);
+                if (src) {
+                    $img.attr("src", src);
+                }
+            }
+            $img.css("visibility", "");
         }
     });
 }
@@ -455,6 +489,7 @@ export function resetHiddenSprites() {
             const img = getSpriteImage(sprite);
             if (img) {
                 img.attr("src", originalSrc);
+                img.css("visibility", ""); // Restore visibility
             }
         }
     }
