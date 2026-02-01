@@ -360,7 +360,7 @@ body.worldTint.tintShared.spriteDefocusTint.spriteShadow {
 	);
 }
 
-/* 
+/*
  * Prome User Sprite Overrides
  * (For ST)
  */
@@ -368,12 +368,23 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
 	position: absolute;
 	height: max-content;
 	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-end;
+	padding: 0 5%;
 }
 
-body.waifuMode.userSprite:not(.movingUI)
-	#expression-wrapper
-	.expression-holder {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
 	position: unset;
+	max-height: 100vh;
+}
+
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user {
+	order: -1;
+	max-height: 100vh;
 }
 
 body #expression-prome-user {
