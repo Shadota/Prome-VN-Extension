@@ -182,14 +182,14 @@ function applySpriteState(spriteId, sprite, img, state) {
     if (state === SPRITE_STATES.INVISIBLE) {
         if (src) {
             img.attr("src", src);
-            img.css("visibility", "");
+            img.css("visibility", "visible");
         } else {
             // No placeholder image - hide via CSS
             img.css("visibility", "hidden");
         }
     } else {
         // Non-invisible state - restore visibility and set src
-        img.css("visibility", "");
+        img.css("visibility", "visible");
         if (src) {
             img.attr("src", src);
         }
@@ -222,7 +222,7 @@ function reapplySpriteState(spriteId) {
             }
             if (src) {
                 $img.attr("src", src);
-                $img.css("visibility", "");
+                $img.css("visibility", "visible");
             } else {
                 // No placeholder - hide via CSS
                 $img.css("visibility", "hidden");
@@ -235,7 +235,7 @@ function reapplySpriteState(spriteId) {
                     $img.attr("src", src);
                 }
             }
-            $img.css("visibility", "");
+            $img.css("visibility", "visible");
         }
     });
 }
@@ -489,7 +489,7 @@ export function resetHiddenSprites() {
             const img = getSpriteImage(sprite);
             if (img) {
                 img.attr("src", originalSrc);
-                img.css("visibility", ""); // Restore visibility
+                img.css("visibility", "visible"); // Restore visibility
             }
         }
     }
