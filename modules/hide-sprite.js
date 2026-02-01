@@ -20,26 +20,40 @@ async function fetchPlaceholderImages() {
 }
 
 /**
- * Get the currently focused sprite element
+ * Get the currently focused sprite element (or fallback to any visible sprite)
  * @returns {jQuery|null}
  */
 function getFocusedSprite() {
-    // Group chat sprites
+    // Group chat sprites with focus
     const groupFocused = $("#visual-novel-wrapper .prome-sprite-focus");
     if (groupFocused.length) {
         return groupFocused.first();
     }
 
-    // Solo chat sprite
+    // Solo chat sprite with focus
     const soloFocused = $("#expression-holder.prome-sprite-focus");
     if (soloFocused.length) {
         return soloFocused.first();
     }
 
-    // User sprite
+    // User sprite with focus
     const userFocused = $("#expression-prome-user.prome-sprite-focus");
     if (userFocused.length) {
         return userFocused.first();
+    }
+
+    // Fallback: Solo chat sprite without focus class
+    const soloSprite = $("#expression-holder");
+    if (soloSprite.length && soloSprite.find("img").length) {
+        return soloSprite.first();
+    }
+
+    // Fallback: Any group sprite without focus class
+    const groupSprites = $("#visual-novel-wrapper > div").filter(function() {
+        return $(this).find("img").length > 0;
+    });
+    if (groupSprites.length) {
+        return groupSprites.first();
     }
 
     return null;
