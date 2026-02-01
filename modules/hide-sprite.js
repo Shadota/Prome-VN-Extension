@@ -1,6 +1,5 @@
 import { extensionName } from "../constants.js";
-import { getSpriteList, isGroupChat } from "../utils.js";
-import { toastr } from "../../../../../lib/toastr.min.js";
+import { getSpriteList } from "../utils.js";
 
 // In-memory state (per-session only)
 let hiddenSpriteIds = new Set();
