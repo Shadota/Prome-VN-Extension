@@ -21,17 +21,24 @@ let dummyMaleImages = [];
 let dummyAvailability = { female: false, male: false };
 
 /**
- * Extract filename from sprite entry (handles both string and object formats)
+ * Get sprite path from sprite entry (handles both string and object formats)
  * @param {string|object} sprite
+ * @param {string} folderName - Fallback folder name if constructing path manually
  * @returns {string}
  */
-function getSpriteFilename(sprite) {
+function getSpritePath(sprite, folderName) {
     if (typeof sprite === 'string') {
-        return sprite;
+        return `/characters/${folderName}/${sprite}`;
     }
-    // SillyTavern API returns objects with 'label' property
+    // SillyTavern API returns objects - prefer 'path' as it includes extension
     if (sprite && typeof sprite === 'object') {
-        return sprite.label || sprite.name || sprite.path || '';
+        // 'path' contains full relative path like "/characters/Folder/file.png"
+        if (sprite.path) {
+            return sprite.path;
+        }
+        // Fallback to label/name (may lack extension)
+        const filename = sprite.label || sprite.name || '';
+        return `/characters/${folderName}/${filename}`;
     }
     return '';
 }
@@ -41,8 +48,7 @@ function getSpriteFilename(sprite) {
  */
 function getPlaceholderPath() {
     if (placeholderImages.length > 0) {
-        const filename = getSpriteFilename(placeholderImages[0]);
-        return `/characters/Placeholder/${filename}`;
+        return getSpritePath(placeholderImages[0], 'Placeholder');
     }
     return "";
 }
@@ -53,8 +59,7 @@ function getPlaceholderPath() {
 function getDummyFemalePath() {
     if (dummyFemaleImages.length > 0) {
         const randomIndex = Math.floor(Math.random() * dummyFemaleImages.length);
-        const filename = getSpriteFilename(dummyFemaleImages[randomIndex]);
-        return `/characters/Dummy-Female/${filename}`;
+        return getSpritePath(dummyFemaleImages[randomIndex], 'Dummy-Female');
     }
     return "";
 }
@@ -65,8 +70,7 @@ function getDummyFemalePath() {
 function getDummyMalePath() {
     if (dummyMaleImages.length > 0) {
         const randomIndex = Math.floor(Math.random() * dummyMaleImages.length);
-        const filename = getSpriteFilename(dummyMaleImages[randomIndex]);
-        return `/characters/Dummy-Male/${filename}`;
+        return getSpritePath(dummyMaleImages[randomIndex], 'Dummy-Male');
     }
     return "";
 }
