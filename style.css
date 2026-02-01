@@ -380,20 +380,17 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
 	position: unset;
 	flex: 0 1 auto;
-	max-height: 100vh;
 	max-width: 45%;
-}
-
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder img {
-	max-height: 100vh;
-	max-width: 100%;
-	height: auto;
-	width: auto;
-	object-fit: contain;
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user {
 	order: -1;
+}
+
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user img {
+	max-height: 60vh;
+	width: auto;
+	object-fit: contain;
 }
 
 body #expression-prome-user {
