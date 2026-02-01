@@ -21,11 +21,28 @@ let dummyMaleImages = [];
 let dummyAvailability = { female: false, male: false };
 
 /**
+ * Extract filename from sprite entry (handles both string and object formats)
+ * @param {string|object} sprite
+ * @returns {string}
+ */
+function getSpriteFilename(sprite) {
+    if (typeof sprite === 'string') {
+        return sprite;
+    }
+    // SillyTavern API returns objects with 'label' property
+    if (sprite && typeof sprite === 'object') {
+        return sprite.label || sprite.name || sprite.path || '';
+    }
+    return '';
+}
+
+/**
  * Get the current placeholder path (Invisible state)
  */
 function getPlaceholderPath() {
     if (placeholderImages.length > 0) {
-        return `/characters/Placeholder/${placeholderImages[0]}`;
+        const filename = getSpriteFilename(placeholderImages[0]);
+        return `/characters/Placeholder/${filename}`;
     }
     return "";
 }
@@ -36,7 +53,8 @@ function getPlaceholderPath() {
 function getDummyFemalePath() {
     if (dummyFemaleImages.length > 0) {
         const randomIndex = Math.floor(Math.random() * dummyFemaleImages.length);
-        return `/characters/Dummy-Female/${dummyFemaleImages[randomIndex]}`;
+        const filename = getSpriteFilename(dummyFemaleImages[randomIndex]);
+        return `/characters/Dummy-Female/${filename}`;
     }
     return "";
 }
@@ -47,7 +65,8 @@ function getDummyFemalePath() {
 function getDummyMalePath() {
     if (dummyMaleImages.length > 0) {
         const randomIndex = Math.floor(Math.random() * dummyMaleImages.length);
-        return `/characters/Dummy-Male/${dummyMaleImages[randomIndex]}`;
+        const filename = getSpriteFilename(dummyMaleImages[randomIndex]);
+        return `/characters/Dummy-Male/${filename}`;
     }
     return "";
 }
