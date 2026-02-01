@@ -5,6 +5,61 @@ import { getSpriteList } from "../utils.js";
 let hiddenSpriteIds = new Set();
 let originalSrcMap = new Map();
 let placeholderImages = [];
+let spriteObservers = new Map(); // Track MutationObservers for hidden sprites
+
+/**
+ * Get the current placeholder path
+ */
+function getPlaceholderPath() {
+    if (placeholderImages.length > 0) {
+        return `/characters/Placeholder/${placeholderImages[0]}`;
+    }
+    return "";
+}
+
+/**
+ * Start observing a sprite's img for src changes
+ */
+function observeSpriteChanges(spriteId, img) {
+    // Disconnect existing observer if any
+    if (spriteObservers.has(spriteId)) {
+        spriteObservers.get(spriteId).disconnect();
+    }
+
+    const imgElement = img.get(0);
+    if (!imgElement) return;
+
+    const placeholderPath = getPlaceholderPath();
+
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === "attributes" && mutation.attributeName === "src") {
+                const currentSrc = imgElement.getAttribute("src");
+                // If src changed to something other than our placeholder, re-apply it
+                if (currentSrc !== placeholderPath && hiddenSpriteIds.has(spriteId)) {
+                    // Update the stored original src to the new expression
+                    originalSrcMap.set(spriteId, currentSrc);
+                    // Re-apply placeholder
+                    imgElement.setAttribute("src", placeholderPath);
+                    console.debug(`[${extensionName}] Re-applied placeholder for: ${spriteId}`);
+                }
+            }
+        }
+    });
+
+    observer.observe(imgElement, { attributes: true, attributeFilter: ["src"] });
+    spriteObservers.set(spriteId, observer);
+}
+
+/**
+ * Stop observing a sprite's img
+ */
+function stopObservingSprite(spriteId) {
+    if (spriteObservers.has(spriteId)) {
+        spriteObservers.get(spriteId).disconnect();
+        spriteObservers.delete(spriteId);
+    }
+}
 
 /**
  * Fetch placeholder images from characters/Placeholder folder
@@ -117,6 +172,9 @@ export function toggleHideSprite() {
     }
 
     if (hiddenSpriteIds.has(spriteId)) {
+        // Stop observing before restoring
+        stopObservingSprite(spriteId);
+
         // Restore original
         const originalSrc = originalSrcMap.get(spriteId);
         if (originalSrc) {
@@ -129,15 +187,14 @@ export function toggleHideSprite() {
         // Store original and apply placeholder
         originalSrcMap.set(spriteId, img.attr("src"));
 
-        if (placeholderImages.length > 0) {
-            const placeholderPath = `/characters/Placeholder/${placeholderImages[0]}`;
-            img.attr("src", placeholderPath);
-        } else {
-            // No placeholder - show nothing
-            img.attr("src", "");
-        }
+        const placeholderPath = getPlaceholderPath();
+        img.attr("src", placeholderPath);
 
         hiddenSpriteIds.add(spriteId);
+
+        // Start observing for src changes
+        observeSpriteChanges(spriteId, img);
+
         console.debug(`[${extensionName}] Sprite hidden: ${spriteId}`);
     }
 
@@ -148,6 +205,12 @@ export function toggleHideSprite() {
  * Reset all hidden sprites (called on chat change)
  */
 export function resetHiddenSprites() {
+    // Stop all observers first
+    for (const [spriteId, observer] of spriteObservers.entries()) {
+        observer.disconnect();
+    }
+    spriteObservers.clear();
+
     // Restore all originals
     for (const [spriteId, originalSrc] of originalSrcMap.entries()) {
         const sprite = $(`#${CSS.escape(spriteId)}`);
