@@ -1,14 +1,27 @@
 import { extensionName } from "../constants.js";
 import { getSpriteList } from "../utils.js";
 
+// State definitions
+const SPRITE_STATES = {
+    MAIN: 0,
+    DUMMY_FEMALE: 1,
+    DUMMY_MALE: 2,
+    INVISIBLE: 3
+};
+
 // In-memory state (per-session only)
-let hiddenSpriteIds = new Set();
+let spriteStates = new Map(); // Maps spriteId -> state (0-3)
 let originalSrcMap = new Map();
 let placeholderImages = [];
-let spriteObservers = new Map(); // Track MutationObservers for hidden sprites
+let spriteObservers = new Map(); // Track MutationObservers for non-main sprites
+
+// Dummy image tracking
+let dummyFemaleImages = [];
+let dummyMaleImages = [];
+let dummyAvailability = { female: false, male: false };
 
 /**
- * Get the current placeholder path
+ * Get the current placeholder path (Invisible state)
  */
 function getPlaceholderPath() {
     if (placeholderImages.length > 0) {
@@ -18,21 +31,154 @@ function getPlaceholderPath() {
 }
 
 /**
- * Apply placeholder to all visible img elements in a sprite container
+ * Get a random dummy female sprite path
  */
-function applyPlaceholderToSprite(spriteId) {
+function getDummyFemalePath() {
+    if (dummyFemaleImages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * dummyFemaleImages.length);
+        return `/characters/Dummy-Female/${dummyFemaleImages[randomIndex]}`;
+    }
+    return "";
+}
+
+/**
+ * Get a random dummy male sprite path
+ */
+function getDummyMalePath() {
+    if (dummyMaleImages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * dummyMaleImages.length);
+        return `/characters/Dummy-Male/${dummyMaleImages[randomIndex]}`;
+    }
+    return "";
+}
+
+/**
+ * Get sprite path for a given state
+ * @param {number} state
+ * @param {string} spriteId - Used to get original src for MAIN state
+ * @returns {string}
+ */
+function getSpriteSrcForState(state, spriteId) {
+    switch (state) {
+        case SPRITE_STATES.MAIN:
+            return originalSrcMap.get(spriteId) || "";
+        case SPRITE_STATES.DUMMY_FEMALE:
+            return getDummyFemalePath();
+        case SPRITE_STATES.DUMMY_MALE:
+            return getDummyMalePath();
+        case SPRITE_STATES.INVISIBLE:
+            return getPlaceholderPath();
+        default:
+            return "";
+    }
+}
+
+/**
+ * Get FontAwesome icon class for a given state
+ * @param {number} state
+ * @returns {string}
+ */
+function getIconForState(state) {
+    switch (state) {
+        case SPRITE_STATES.MAIN:
+            return "fa-eye";
+        case SPRITE_STATES.DUMMY_FEMALE:
+            return "fa-venus";
+        case SPRITE_STATES.DUMMY_MALE:
+            return "fa-mars";
+        case SPRITE_STATES.INVISIBLE:
+            return "fa-eye-slash";
+        default:
+            return "fa-eye";
+    }
+}
+
+/**
+ * Get tooltip text for a given state
+ * @param {number} state
+ * @returns {string}
+ */
+function getTooltipForState(state) {
+    switch (state) {
+        case SPRITE_STATES.MAIN:
+            return "Sprite: Main (click to cycle)";
+        case SPRITE_STATES.DUMMY_FEMALE:
+            return "Sprite: Dummy Female (click to cycle)";
+        case SPRITE_STATES.DUMMY_MALE:
+            return "Sprite: Dummy Male (click to cycle)";
+        case SPRITE_STATES.INVISIBLE:
+            return "Sprite: Invisible (click to cycle)";
+        default:
+            return "Toggle sprite visibility (Prome)";
+    }
+}
+
+/**
+ * Get next state, skipping unavailable dummy states
+ * @param {number} current
+ * @returns {number}
+ */
+function getNextState(current) {
+    const stateOrder = [
+        SPRITE_STATES.MAIN,
+        SPRITE_STATES.DUMMY_FEMALE,
+        SPRITE_STATES.DUMMY_MALE,
+        SPRITE_STATES.INVISIBLE
+    ];
+
+    let nextIndex = (stateOrder.indexOf(current) + 1) % stateOrder.length;
+
+    // Skip unavailable states
+    while (true) {
+        const nextState = stateOrder[nextIndex];
+
+        if (nextState === SPRITE_STATES.DUMMY_FEMALE && !dummyAvailability.female) {
+            nextIndex = (nextIndex + 1) % stateOrder.length;
+            continue;
+        }
+        if (nextState === SPRITE_STATES.DUMMY_MALE && !dummyAvailability.male) {
+            nextIndex = (nextIndex + 1) % stateOrder.length;
+            continue;
+        }
+
+        return nextState;
+    }
+}
+
+/**
+ * Apply sprite state to img element
+ * @param {string} spriteId
+ * @param {jQuery} sprite
+ * @param {jQuery} img
+ * @param {number} state
+ */
+function applySpriteState(spriteId, sprite, img, state) {
+    const src = getSpriteSrcForState(state, spriteId);
+    if (src) {
+        img.attr("src", src);
+    }
+}
+
+/**
+ * Reapply sprite state to all visible img elements in a sprite container
+ * (Called by MutationObserver when ST replaces img elements)
+ */
+function reapplySpriteState(spriteId) {
     const sprite = $(`#${CSS.escape(spriteId)}`);
     if (!sprite.length) return;
 
-    const placeholderPath = getPlaceholderPath();
+    const state = spriteStates.get(spriteId);
+    if (state === undefined || state === SPRITE_STATES.MAIN) return;
+
+    const src = getSpriteSrcForState(state, spriteId);
     const imgs = sprite.find("img");
 
     imgs.each(function() {
         const currentSrc = $(this).attr("src");
-        if (currentSrc && currentSrc !== placeholderPath) {
+        if (currentSrc && currentSrc !== src) {
             // Store the latest original src
             originalSrcMap.set(spriteId, currentSrc);
-            $(this).attr("src", placeholderPath);
+            $(this).attr("src", src);
         }
     });
 }
@@ -50,7 +196,8 @@ function observeSpriteChanges(spriteId, sprite) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
-        if (!hiddenSpriteIds.has(spriteId)) return;
+        const state = spriteStates.get(spriteId);
+        if (state === undefined || state === SPRITE_STATES.MAIN) return;
 
         let needsReapply = false;
 
@@ -73,8 +220,8 @@ function observeSpriteChanges(spriteId, sprite) {
         }
 
         if (needsReapply) {
-            applyPlaceholderToSprite(spriteId);
-            console.debug(`[${extensionName}] Re-applied placeholder for: ${spriteId}`);
+            reapplySpriteState(spriteId);
+            console.debug(`[${extensionName}] Re-applied sprite state for: ${spriteId}`);
         }
     });
 
@@ -108,6 +255,33 @@ async function fetchPlaceholderImages() {
     } catch (err) {
         console.error(`[${extensionName}] Failed to load placeholder images:`, err);
         placeholderImages = [];
+    }
+}
+
+/**
+ * Fetch dummy images from Dummy-Female and Dummy-Male folders
+ */
+async function fetchDummyImages() {
+    // Fetch Dummy-Female
+    try {
+        dummyFemaleImages = await getSpriteList("Dummy-Female");
+        dummyAvailability.female = dummyFemaleImages.length > 0;
+        console.debug(`[${extensionName}] Dummy-Female images loaded: ${dummyFemaleImages.length}`);
+    } catch (err) {
+        console.debug(`[${extensionName}] Dummy-Female folder not available:`, err);
+        dummyFemaleImages = [];
+        dummyAvailability.female = false;
+    }
+
+    // Fetch Dummy-Male
+    try {
+        dummyMaleImages = await getSpriteList("Dummy-Male");
+        dummyAvailability.male = dummyMaleImages.length > 0;
+        console.debug(`[${extensionName}] Dummy-Male images loaded: ${dummyMaleImages.length}`);
+    } catch (err) {
+        console.debug(`[${extensionName}] Dummy-Male folder not available:`, err);
+        dummyMaleImages = [];
+        dummyAvailability.male = false;
     }
 }
 
@@ -176,22 +350,24 @@ function updateButtonIcon() {
 
     const focusedSprite = getFocusedSprite();
     if (!focusedSprite) {
-        btn.removeClass("fa-eye-slash").addClass("fa-eye");
+        btn.removeClass("fa-eye-slash fa-venus fa-mars").addClass("fa-eye");
+        btn.attr("title", "Toggle sprite visibility (Prome)");
         return;
     }
 
     const spriteId = focusedSprite.attr("id");
-    const isHidden = hiddenSpriteIds.has(spriteId);
+    const state = spriteStates.get(spriteId) || SPRITE_STATES.MAIN;
 
-    if (isHidden) {
-        btn.removeClass("fa-eye").addClass("fa-eye-slash");
-    } else {
-        btn.removeClass("fa-eye-slash").addClass("fa-eye");
-    }
+    // Remove all state icons
+    btn.removeClass("fa-eye fa-eye-slash fa-venus fa-mars");
+
+    // Add current state icon
+    btn.addClass(getIconForState(state));
+    btn.attr("title", getTooltipForState(state));
 }
 
 /**
- * Toggle visibility of the currently focused sprite
+ * Toggle visibility of the currently focused sprite (cycles through states)
  */
 export function toggleHideSprite() {
     const focusedSprite = getFocusedSprite();
@@ -208,31 +384,32 @@ export function toggleHideSprite() {
         return;
     }
 
-    if (hiddenSpriteIds.has(spriteId)) {
-        // Stop observing before restoring
-        stopObservingSprite(spriteId);
+    // Get current state (default: MAIN)
+    const currentState = spriteStates.get(spriteId) || SPRITE_STATES.MAIN;
 
-        // Restore original
-        const originalSrc = originalSrcMap.get(spriteId);
-        if (originalSrc) {
-            img.attr("src", originalSrc);
-        }
-        hiddenSpriteIds.delete(spriteId);
-        originalSrcMap.delete(spriteId);
-        console.debug(`[${extensionName}] Sprite restored: ${spriteId}`);
-    } else {
-        // Store original and apply placeholder
+    // Store original src if not already stored (only when leaving MAIN state)
+    if (currentState === SPRITE_STATES.MAIN) {
         originalSrcMap.set(spriteId, img.attr("src"));
+    }
 
-        const placeholderPath = getPlaceholderPath();
-        img.attr("src", placeholderPath);
+    // Calculate next state
+    const nextState = getNextState(currentState);
 
-        hiddenSpriteIds.add(spriteId);
+    // Apply new sprite state
+    applySpriteState(spriteId, focusedSprite, img, nextState);
 
-        // Start observing the container for changes (ST replaces img elements)
+    // Update state tracking
+    if (nextState === SPRITE_STATES.MAIN) {
+        spriteStates.delete(spriteId);
+        originalSrcMap.delete(spriteId);
+        // Stop observing when returning to MAIN
+        stopObservingSprite(spriteId);
+        console.debug(`[${extensionName}] Sprite restored to main: ${spriteId}`);
+    } else {
+        spriteStates.set(spriteId, nextState);
+        // Start/continue observing for non-MAIN states
         observeSpriteChanges(spriteId, focusedSprite);
-
-        console.debug(`[${extensionName}] Sprite hidden: ${spriteId}`);
+        console.debug(`[${extensionName}] Sprite state changed to ${nextState}: ${spriteId}`);
     }
 
     updateButtonIcon();
@@ -259,7 +436,7 @@ export function resetHiddenSprites() {
         }
     }
 
-    hiddenSpriteIds.clear();
+    spriteStates.clear();
     originalSrcMap.clear();
     updateButtonIcon();
     console.debug(`[${extensionName}] Hidden sprites reset`);
@@ -311,6 +488,7 @@ export function setupHideSpriteButton() {
  */
 export async function initHideSprite() {
     await fetchPlaceholderImages();
+    await fetchDummyImages();
 }
 
 /**
