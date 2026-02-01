@@ -372,9 +372,9 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
 	right: 0;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: flex-end;
-	padding: 0 5%;
+	gap: 5%;
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
@@ -388,7 +388,7 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-u
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user img {
-	max-height: 70vh;
+	max-height: 72vh;
 	width: auto;
 	object-fit: contain;
 }
