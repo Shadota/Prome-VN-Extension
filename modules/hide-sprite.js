@@ -18,41 +18,78 @@ function getPlaceholderPath() {
 }
 
 /**
- * Start observing a sprite's img for src changes
+ * Apply placeholder to all visible img elements in a sprite container
  */
-function observeSpriteChanges(spriteId, img) {
+function applyPlaceholderToSprite(spriteId) {
+    const sprite = $(`#${CSS.escape(spriteId)}`);
+    if (!sprite.length) return;
+
+    const placeholderPath = getPlaceholderPath();
+    const imgs = sprite.find("img");
+
+    imgs.each(function() {
+        const currentSrc = $(this).attr("src");
+        if (currentSrc && currentSrc !== placeholderPath) {
+            // Store the latest original src
+            originalSrcMap.set(spriteId, currentSrc);
+            $(this).attr("src", placeholderPath);
+        }
+    });
+}
+
+/**
+ * Start observing a sprite container for child/attribute changes
+ */
+function observeSpriteChanges(spriteId, sprite) {
     // Disconnect existing observer if any
     if (spriteObservers.has(spriteId)) {
         spriteObservers.get(spriteId).disconnect();
     }
 
-    const imgElement = img.get(0);
-    if (!imgElement) return;
-
-    const placeholderPath = getPlaceholderPath();
+    const container = sprite.get(0);
+    if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
+        if (!hiddenSpriteIds.has(spriteId)) return;
+
+        let needsReapply = false;
+
         for (const mutation of mutations) {
+            // Check for new img elements added
+            if (mutation.type === "childList") {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeName === "IMG") {
+                        needsReapply = true;
+                        break;
+                    }
+                }
+            }
+            // Check for src attribute changes on img elements
             if (mutation.type === "attributes" && mutation.attributeName === "src") {
-                const currentSrc = imgElement.getAttribute("src");
-                // If src changed to something other than our placeholder, re-apply it
-                if (currentSrc !== placeholderPath && hiddenSpriteIds.has(spriteId)) {
-                    // Update the stored original src to the new expression
-                    originalSrcMap.set(spriteId, currentSrc);
-                    // Re-apply placeholder
-                    imgElement.setAttribute("src", placeholderPath);
-                    console.debug(`[${extensionName}] Re-applied placeholder for: ${spriteId}`);
+                if (mutation.target.nodeName === "IMG") {
+                    needsReapply = true;
                 }
             }
         }
+
+        if (needsReapply) {
+            applyPlaceholderToSprite(spriteId);
+            console.debug(`[${extensionName}] Re-applied placeholder for: ${spriteId}`);
+        }
     });
 
-    observer.observe(imgElement, { attributes: true, attributeFilter: ["src"] });
+    // Observe both child changes and attribute changes on descendants
+    observer.observe(container, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["src"]
+    });
     spriteObservers.set(spriteId, observer);
 }
 
 /**
- * Stop observing a sprite's img
+ * Stop observing a sprite container
  */
 function stopObservingSprite(spriteId) {
     if (spriteObservers.has(spriteId)) {
@@ -192,8 +229,8 @@ export function toggleHideSprite() {
 
         hiddenSpriteIds.add(spriteId);
 
-        // Start observing for src changes
-        observeSpriteChanges(spriteId, img);
+        // Start observing the container for changes (ST replaces img elements)
+        observeSpriteChanges(spriteId, focusedSprite);
 
         console.debug(`[${extensionName}] Sprite hidden: ${spriteId}`);
     }
