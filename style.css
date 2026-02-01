@@ -374,7 +374,12 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
 	flex-direction: row;
 	justify-content: center;
 	align-items: flex-end;
-	gap: 2vw;
+	gap: 0;
+}
+
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
