@@ -149,7 +149,10 @@ body.waifuMode.spriteDefocusTint .prome-sprite-defocus {
  * Prome Sprite Scale & Offset
  */
 body.waifuMode #visual-novel-wrapper [id*="expression-"],
-body.waifuMode #expression-wrapper .expression-holder {
+body.waifuMode #expression-wrapper .expression-holder,
+body.waifuMode .expression-plus-holder,
+body.waifuMode #visual-novel-plus-wrapper .expression-plus-holder,
+body.waifuMode img.expression-plus {
 	transform: translateY(-25%);
 	transform-origin: bottom;
 }
