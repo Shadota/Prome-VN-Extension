@@ -9,7 +9,7 @@ import {
 import { getGroupIndex, spritePackExists } from "../utils.js";
 import { loadMovingUIState } from "../../../../power-user.js";
 import { dragElement } from "../../../../RossAscends-mods.js";
-import { sendExpressionCall } from "../../../expressions/index.js";
+import { sendExpressionCall } from "../../../third-party/expressions-plus/index.js";
 import { emulateSpritesDebounce } from "../listeners.js";
 
 function setSpritePack(spritePack) {

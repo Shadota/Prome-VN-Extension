@@ -24,7 +24,6 @@ import { applySpriteShadow } from "./shadows.js";
 import { applyTint } from "./tint.js";
 import { getSpriteList, isGroupChat } from "../utils.js";
 import { applyUserSprite, handleUserSprite } from "./user.js";
-import { visualNovelUpdateLayers } from "../../../expressions/index.js";
 
 export function prepareSlashCommands() {
 	SlashCommandParser.addCommandObject(
@@ -379,28 +378,14 @@ export function prepareSlashCommands() {
 		SlashCommand.fromProps({
 			name: "update-layers",
 			callback: async () => {
-				if (!extension_settings[extensionName].enableVN_UI) {
-					toastr.error(
-						"VN Mode/Prome is not enabled. Enable it in the settings.",
-						"Visual Novel UI Disabled",
-					);
-					return false;
-				}
-				if (!isGroupChat()) {
-					toastr.error(
-						"This command can only be used in group chats.",
-						"Group Chat Only",
-					);
-					return false;
-				}
-
-				const vnWrapper = $("#visual-novel-wrapper");
-				await visualNovelUpdateLayers(vnWrapper);
-				toastr.success("Visual Novel layers updated.", "Update Layers");
+				toastr.info(
+					"Layer updates are now handled by your expressions extension.",
+					"Update Layers",
+				);
 				return true;
 			},
 			helpString:
-				"(Prome Visual Novel Extension) Updates the layers of the visual novel UI in case of any issues [Group Chat Only].",
+				"(Prome Visual Novel Extension) Layer updates are now handled by the expressions extension.",
 		}),
 	);
 }

@@ -13,7 +13,6 @@ import {
 import { textgenerationwebui_settings as textgen_settings } from "../../../textgen-settings.js";
 import { applyScale } from "./modules/scale.js";
 import { isDisabledMember } from "./utils.js";
-import { visualNovelUpdateLayers } from "../../expressions/index.js";
 
 /* Debouncers */
 export const applyZoomDebounce = debounce(() => {
@@ -277,15 +276,7 @@ async function emulateSprites() {
 	const groupChat = isGroupChat();
 
 	if (groupChat) {
-		const vnWrapper = $("#visual-novel-wrapper");
-
 		await emulateGroupSprites();
-
-		// Execute VN Sprite Update only if User Sprite is not enabled
-		// If enabled, let the User Sprite VN Update handle it
-		if (!isUserSpriteEnabled()) {
-			await visualNovelUpdateLayers(vnWrapper);
-		}
 	} else {
 		await emulateSoloSprites();
 	}

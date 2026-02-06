@@ -7,7 +7,6 @@ import {
 	isAutoHideSpritesEnabled,
 	isUserSpriteEnabled,
 } from "../utils.js";
-import { visualNovelUpdateLayers } from "../../../expressions/index.js";
 
 export function applyAutoHideSprites() {
 	if (
@@ -33,7 +32,6 @@ export function onAutoHideSprites_Click(event) {
 }
 
 export async function onAutoHideMaxSprites_Change() {
-	const vnWrapper = $("#visual-novel-wrapper");
 	const value = Number(this.value);
 	if (value < 0 || value > 8) {
 		console.error(
@@ -45,7 +43,6 @@ export async function onAutoHideMaxSprites_Change() {
 	$("#prome-sprite-max-visible").val(value);
 	saveSettingsDebounced();
 	handleAutoHideSprites();
-	await visualNovelUpdateLayers(vnWrapper);
 }
 
 export function setupAutoHideHTML() {
@@ -72,7 +69,6 @@ export async function handleAutoHideSprites() {
 	// If the user is not in a group or auto-hide is disabled, exit
 	if (groupIndex === -1 || !isAutoHideSpritesEnabled()) {
 		allSprites.removeClass("displayNone").css("display", "inherit");
-		if (groupIndex !== -1) await visualNovelUpdateLayers(vnWrapper);
 		return;
 	}
 
@@ -125,7 +121,4 @@ export async function handleAutoHideSprites() {
 			}
 		}
 	}
-
-	await visualNovelUpdateLayers(vnWrapper);
-	return;
 }

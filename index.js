@@ -96,7 +96,6 @@ import {
 	setupHideSpriteButton,
 	syncHideSpriteButtonState,
 } from "./modules/hide-sprite.js";
-import { visualNovelUpdateLayers } from "../../expressions/index.js";
 
 async function loadSettings() {
 	extension_settings[extensionName] = extension_settings[extensionName] || {};
@@ -339,10 +338,6 @@ jQuery(async () => {
 		await applyUserAttributesDebounce();
 		await applyScaleDebounce();
 		handleAutoHideSprites();
-
-		if (isGroupChat()) {
-			await visualNovelUpdateLayers(vnWrapper);
-		}
 	});
 
 	// Prevents the User Sprite from Genning Content
@@ -399,10 +394,6 @@ $(document).ready(() => {
 					syncHideSpriteButtonState();
 					applyDefocusDebounce();
 					applyShakeDebounce();
-
-					if (isGroupChat()) {
-						visualNovelUpdateLayers($("#visual-novel-wrapper"));
-					}
 				}
 				if (
 					node.tagName === "DIV" &&
@@ -412,10 +403,6 @@ $(document).ready(() => {
 					applyZoomDebounce();
 					syncHideSpriteButtonState();
 					applyDefocusDebounce();
-
-					if (isGroupChat()) {
-						visualNovelUpdateLayers($("#visual-novel-wrapper"));
-					}
 				}
 			}
 		};
