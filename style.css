@@ -146,10 +146,16 @@ body.waifuMode.spriteDefocusTint .prome-sprite-defocus {
 }
 
 /*
- * Prome Sprite Scale
+ * Prome Sprite Scale & Offset
  */
+body.waifuMode #visual-novel-wrapper [id*="expression-"],
+body.waifuMode #expression-wrapper .expression-holder {
+	transform: translateY(-25%);
+	transform-origin: bottom;
+}
+
 body.waifuMode.spriteScale .prome-sprite-scale {
-	transform: scale(var(--prome-sprite-scale));
+	transform: scale(var(--prome-sprite-scale)) translateY(-25%);
 	transform-origin: bottom;
 }
 
