@@ -176,7 +176,7 @@ body.waifuMode .expression-plus-holder {
 
 body.waifuMode .expression-plus-holder img.expression-plus {
 	object-position: center top !important;
-	max-height: 70% !important;
+	max-height: 56% !important;
 }
 
 body.waifuMode.emulateSprites #visual-novel-wrapper .hidden:not(.displayNone),
