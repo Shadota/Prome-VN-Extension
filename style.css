@@ -411,13 +411,15 @@ body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper {
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder,
-body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder {
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder,
+body.waifuMode.userSprite:not(.movingUI) #expression-prome-user {
 	margin: 0 !important;
 	padding: 0 !important;
 }
 
 body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder,
-body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder {
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder,
+body.waifuMode.userSprite:not(.movingUI) #expression-prome-user {
 	position: unset;
 	flex: 0 1 auto;
 	max-width: 45%;
