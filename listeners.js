@@ -9,6 +9,7 @@ import {
 	isUserSpriteEnabled,
 	isGroupChat,
 	spritePackExists,
+	getExpressionHolderSelector,
 } from "./utils.js";
 import { textgenerationwebui_settings as textgen_settings } from "../../../textgen-settings.js";
 import { applyScale } from "./modules/scale.js";
@@ -102,9 +103,10 @@ function applyZoom() {
 	if (!zoomListenerPreconditions(true)) return;
 
 	// Cache selectors
-	const visualNovelWrapperSprites = $("#visual-novel-wrapper > div");
+	const visualNovelWrapperSprites = $("#visual-novel-wrapper > div, #visual-novel-plus-wrapper .expression-plus-holder");
 	const promeUserSprite = $("#expression-prome-user");
-	const expressionHolder = $("#expression-holder");
+	const expressionHolderSelector = getExpressionHolderSelector();
+	const expressionHolder = $(expressionHolderSelector);
 
 	// Check if there are any messages
 	const lastMessagesWithoutSystem = getLastChatMessage();
@@ -144,7 +146,7 @@ function applyZoom() {
 		});
 	}
 
-	return waitForElement("#expression-holder", (sprite) => {
+	return waitForElement(expressionHolderSelector, (sprite) => {
 		sprite.addClass("prome-sprite-focus");
 		promeUserSprite.removeClass("prome-sprite-focus");
 	});
@@ -155,9 +157,10 @@ function applyDefocus() {
 	if (!zoomListenerPreconditions(true)) return;
 
 	// Cache selectors
-	const visualNovelWrapperSprites = $("#visual-novel-wrapper > div");
+	const visualNovelWrapperSprites = $("#visual-novel-wrapper > div, #visual-novel-plus-wrapper .expression-plus-holder");
 	const promeUserSprite = $("#expression-prome-user");
-	const expressionHolder = $("#expression-holder");
+	const expressionHolderSelector = getExpressionHolderSelector();
+	const expressionHolder = $(expressionHolderSelector);
 
 	// Check if there are any messages
 	const lastMessagesWithoutSystem = getLastChatMessage();
@@ -198,7 +201,7 @@ function applyDefocus() {
 		});
 	}
 
-	return waitForElement("#expression-holder", (sprite) => {
+	return waitForElement(expressionHolderSelector, (sprite) => {
 		sprite.removeClass("prome-sprite-defocus");
 		promeUserSprite.addClass("prome-sprite-defocus");
 	});
@@ -246,13 +249,14 @@ async function emulateSoloSprites() {
 		return Promise.resolve();
 
 	const character = context.characters[context.characterId];
+	const expressionHolderSelector = getExpressionHolderSelector();
 
 	if (!spritePackExists(character.name)) {
 		// Solo chats don't need emulation as clicking the char
 		// icon will show the character card image
 		if (!isUserSpriteEnabled()) {
-			$("#expression-holder").children("img").attr("src", "");
-			$("#expression-holder").css("display", "none");
+			$(expressionHolderSelector).children("img").attr("src", "");
+			$(expressionHolderSelector).css("display", "none");
 			return Promise.resolve();
 		}
 
@@ -260,7 +264,7 @@ async function emulateSoloSprites() {
 			`[${extensionName}] Sprites not found for character: ${character.name}. Emulating via character card image.`,
 		);
 
-		waitForElement("#expression-holder", (sprite) => {
+		waitForElement(expressionHolderSelector, (sprite) => {
 			if (!extension_settings[extensionName].emulateSprites) {
 				sprite.children("img").attr("src", "");
 				sprite.css("display", "none");
@@ -285,7 +289,7 @@ async function emulateSprites() {
 }
 
 function getShakeTargets(group, characterAvatar = null) {
-	const allSprites = $("#visual-novel-wrapper > div");
+	const allSprites = $("#visual-novel-wrapper > div, #visual-novel-plus-wrapper .expression-plus-holder");
 
 	if (group) {
 		if (characterAvatar) {
@@ -295,7 +299,7 @@ function getShakeTargets(group, characterAvatar = null) {
 		return { target: null, allSprites };
 	}
 
-	return { target: "#expression-holder" };
+	return { target: getExpressionHolderSelector() };
 }
 
 // Apply shake class to the speaking sprite

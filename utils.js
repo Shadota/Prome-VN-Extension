@@ -139,3 +139,31 @@ export async function spritePackExists(spritePack) {
 	);
 	return spritePackExists;
 }
+
+/**
+ * Returns whether Expressions+ is active (wrapper exists in DOM)
+ * @returns {boolean} - Whether Expressions+ is being used
+ */
+export function isExpressionsPlusActive() {
+	return $("#expression-plus-wrapper").length > 0;
+}
+
+/**
+ * Returns the appropriate expression holder selector based on active extension
+ * @returns {string} - jQuery selector for the expression holder
+ */
+export function getExpressionHolderSelector() {
+	return isExpressionsPlusActive()
+		? "#expression-plus-wrapper .expression-plus-holder"
+		: "#expression-holder";
+}
+
+/**
+ * Returns the appropriate expression wrapper selector based on active extension
+ * @returns {string} - jQuery selector for the expression wrapper
+ */
+export function getExpressionWrapperSelector() {
+	return isExpressionsPlusActive()
+		? "#expression-plus-wrapper"
+		: "#expression-wrapper";
+}

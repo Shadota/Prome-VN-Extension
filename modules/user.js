@@ -88,13 +88,23 @@ export async function handleUserSprite() {
 		// One-on-One Chat
 		if (context.characterId === undefined) return;
 
+		// Check if Expressions+ is active, otherwise fall back to vanilla expressions
+		const expressionsPlusWrapper = $("#expression-plus-wrapper");
+		const useExpressionsPlus = expressionsPlusWrapper.length > 0;
+		const expressionHolder = useExpressionsPlus
+			? expressionsPlusWrapper
+			: $("#expression-wrapper");
+
 		// Check if Prome's Expression Image IMG is in the Expression Holder Div
-		const expressionHolder = $("#expression-wrapper");
 		let promeExpression = expressionHolder.children("#expression-prome-user");
 		if (promeExpression.length === 0) {
-			const html = `<div id="expression-prome-user" class="expression-holder displayNone">
+			// Use appropriate class based on which extension is active
+			const holderClass = useExpressionsPlus
+				? "expression-plus-holder"
+				: "expression-holder";
+			const html = `<div id="expression-prome-user" class="${holderClass} displayNone">
 					<div id="expression-prome-userheader" class="fa-solid fa-grip drag-grabber"></div>
-					<img id="expression-image" class="" src=""/>
+					<img id="expression-image" class="${useExpressionsPlus ? 'expression-plus' : ''}" src=""/>
 				</div>`;
 
 			expressionHolder.append(html);

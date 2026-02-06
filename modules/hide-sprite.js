@@ -1,5 +1,5 @@
 import { extensionName } from "../constants.js";
-import { getSpriteList } from "../utils.js";
+import { getSpriteList, getExpressionHolderSelector, isExpressionsPlusActive } from "../utils.js";
 
 // State definitions
 const SPRITE_STATES = {
@@ -347,14 +347,15 @@ async function fetchDummyImages() {
  * @returns {jQuery|null}
  */
 function getFocusedSprite() {
-    // Group chat sprites with focus
-    const groupFocused = $("#visual-novel-wrapper .prome-sprite-focus");
+    // Group chat sprites with focus (both vanilla VN and Expressions+)
+    const groupFocused = $("#visual-novel-wrapper .prome-sprite-focus, #visual-novel-plus-wrapper .prome-sprite-focus");
     if (groupFocused.length) {
         return groupFocused.first();
     }
 
     // Solo chat sprite with focus
-    const soloFocused = $("#expression-holder.prome-sprite-focus");
+    const expressionHolderSelector = getExpressionHolderSelector();
+    const soloFocused = $(`${expressionHolderSelector}.prome-sprite-focus`);
     if (soloFocused.length) {
         return soloFocused.first();
     }
@@ -366,13 +367,13 @@ function getFocusedSprite() {
     }
 
     // Fallback: Solo chat sprite without focus class
-    const soloSprite = $("#expression-holder");
+    const soloSprite = $(expressionHolderSelector);
     if (soloSprite.length && soloSprite.find("img").length) {
         return soloSprite.first();
     }
 
-    // Fallback: Any group sprite without focus class
-    const groupSprites = $("#visual-novel-wrapper > div").filter(function() {
+    // Fallback: Any group sprite without focus class (both vanilla VN and Expressions+)
+    const groupSprites = $("#visual-novel-wrapper > div, #visual-novel-plus-wrapper .expression-plus-holder").filter(function() {
         return $(this).find("img").length > 0;
     });
     if (groupSprites.length) {
