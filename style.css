@@ -166,10 +166,17 @@ body.waifuMode.spriteZoom:not(.spriteScale) .prome-sprite-focus {
 
 /*
  * Prome Sprite Vertical Offset (for tightly cropped sprites)
- * Expressions+ sprites need 30% offset to match old sprite positioning
+ * Expressions+ uses object-fit: contain which centers images.
+ * Override to align sprite to top of holder, with holder at bottom of viewport.
+ * This positions tightly-cropped sprites the same as padded sprites.
  */
 body.waifuMode .expression-plus-holder {
-	bottom: 30% !important;
+	align-items: flex-start !important;
+}
+
+body.waifuMode .expression-plus-holder img.expression-plus {
+	object-position: center top !important;
+	max-height: 70% !important;
 }
 
 body.waifuMode.emulateSprites #visual-novel-wrapper .hidden:not(.displayNone),
