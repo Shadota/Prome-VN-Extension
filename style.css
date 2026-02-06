@@ -113,18 +113,20 @@ body.waifuMode.vLetterBox #visual-novel-letterbox-two {
 	z-index: var(--prome-letterbox-zindex);
 }
 
-/* 
- * Prome Sprite Focus (Multiple Characters) 
+/*
+ * Prome Sprite Focus (Multiple Characters)
  * For shake + focus, see Prome Sprite Shake
  */
-#visual-novel-wrapper [id*="expression-"] {
+#visual-novel-wrapper [id*="expression-"],
+#visual-novel-plus-wrapper .expression-plus-holder {
 	will-change: transform, filter;
 	transition: transform var(--prome-sprite-zoom-speed)
 		var(--prome-sprite-zoom-animation), filter
 		var(--prome-focus-filter-transition);
 }
 
-#expression-wrapper > div {
+#expression-wrapper > div,
+#expression-plus-wrapper .expression-plus-holder {
 	will-change: transform, filter;
 	transition: transform var(--prome-sprite-zoom-speed)
 		var(--prome-sprite-zoom-animation), filter
@@ -153,13 +155,6 @@ body.waifuMode.spriteScale .prome-sprite-scale {
 	transform-origin: bottom;
 }
 
-/*
- * Prome Sprite Vertical Offset (for tightly cropped sprites)
- */
-body.waifuMode .expression-plus-holder {
-	bottom: 30% !important;
-}
-
 body.waifuMode.spriteScale.spriteZoom .prome-sprite-scale.prome-sprite-focus {
 	--prome-combined-scale: calc(var(--prome-sprite-scale) * var(--prome-focus-scale));
 	transform: scale(var(--prome-combined-scale));
@@ -169,13 +164,22 @@ body.waifuMode.spriteZoom:not(.spriteScale) .prome-sprite-focus {
 	transform: scale(var(--prome-focus-scale));
 }
 
-body.waifuMode.emulateSprites #visual-novel-wrapper .hidden:not(.displayNone) {
+/*
+ * Prome Sprite Vertical Offset (for tightly cropped sprites)
+ * Expressions+ sprites need 30% offset to match old sprite positioning
+ */
+body.waifuMode .expression-plus-holder {
+	bottom: 30% !important;
+}
+
+body.waifuMode.emulateSprites #visual-novel-wrapper .hidden:not(.displayNone),
+body.waifuMode.emulateSprites #visual-novel-plus-wrapper .hidden:not(.displayNone) {
 	display: inherit !important;
 	visibility: visible !important;
 }
 
-/* 
- * Prome Sprite Shake 
+/*
+ * Prome Sprite Shake
  */
 
 @media (prefers-reduced-motion: reduce) {
@@ -291,31 +295,42 @@ body.waifuMode.spriteShake.spriteZoom.spriteScale .prome-sprite-shake {
 		var(--prome-shake-timing) infinite;
 }
 
-/* 
+/*
  * Prome Sprite Shadows
  */
 
-body.waifuMode.spriteShadow #visual-novel-wrapper [id*="expression-"] {
+body.waifuMode.spriteShadow #visual-novel-wrapper [id*="expression-"],
+body.waifuMode.spriteShadow #visual-novel-plus-wrapper .expression-plus-holder {
 	filter: var(--prome-shadow-filter);
 }
 
-body.waifuMode.spriteShadow #expression-wrapper .expression-holder {
+body.waifuMode.spriteShadow #expression-wrapper .expression-holder,
+body.waifuMode.spriteShadow #expression-plus-wrapper .expression-plus-holder,
+body.waifuMode.spriteShadow .expression-plus-holder {
 	filter: var(--prome-shadow-filter);
 }
 
 body.waifuMode.spriteDefocusTint.spriteShadow
 	#visual-novel-wrapper
-	[id*="expression-"].prome-sprite-defocus {
+	[id*="expression-"].prome-sprite-defocus,
+body.waifuMode.spriteDefocusTint.spriteShadow
+	#visual-novel-plus-wrapper
+	.expression-plus-holder.prome-sprite-defocus {
 	filter: var(--prome-shadow-filter-defocus);
 }
 
 body.waifuMode.spriteDefocusTint.spriteShadow
 	#expression-wrapper
-	.expression-holder.prome-sprite-defocus {
+	.expression-holder.prome-sprite-defocus,
+body.waifuMode.spriteDefocusTint.spriteShadow
+	#expression-plus-wrapper
+	.expression-plus-holder.prome-sprite-defocus,
+body.waifuMode.spriteDefocusTint.spriteShadow
+	.expression-plus-holder.prome-sprite-defocus {
 	filter: var(--prome-shadow-filter-defocus);
 }
 
-/* 
+/*
  * Prome Background Tint
  */
 
@@ -323,11 +338,14 @@ body.worldTint.tintWorld #bg1 {
 	filter: var(--prome-background-tint-filter);
 }
 
-body.worldTint.tintCharacter #expression-wrapper .expression-holder {
+body.worldTint.tintCharacter #expression-wrapper .expression-holder,
+body.worldTint.tintCharacter #expression-plus-wrapper .expression-plus-holder,
+body.worldTint.tintCharacter .expression-plus-holder {
 	filter: var(--current-char-tint-filter);
 }
 
-body.worldTint.tintCharacter #visual-novel-wrapper [id*="expression-"] {
+body.worldTint.tintCharacter #visual-novel-wrapper [id*="expression-"],
+body.worldTint.tintCharacter #visual-novel-plus-wrapper .expression-plus-holder {
 	filter: var(--current-char-tint-filter);
 }
 
@@ -371,7 +389,8 @@ body.worldTint.tintShared.spriteDefocusTint.spriteShadow {
  * Prome User Sprite Overrides
  * (For ST)
  */
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper,
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper {
 	position: absolute;
 	height: max-content;
 	bottom: 0;
@@ -384,22 +403,26 @@ body.waifuMode.userSprite:not(.movingUI) #expression-wrapper {
 	gap: 0;
 }
 
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder,
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder {
 	margin: 0 !important;
 	padding: 0 !important;
 }
 
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper .expression-holder,
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper .expression-plus-holder {
 	position: unset;
 	flex: 0 1 auto;
 	max-width: 45%;
 }
 
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user,
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper #expression-prome-user {
 	order: -1;
 }
 
-body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user img {
+body.waifuMode.userSprite:not(.movingUI) #expression-wrapper #expression-prome-user img,
+body.waifuMode.userSprite:not(.movingUI) #expression-plus-wrapper #expression-prome-user img {
 	max-height: 72vh;
 	width: auto;
 	object-fit: contain;
@@ -414,7 +437,8 @@ body.waifuMode.userSprite #expression-prome-user {
 	visibility: visible;
 }
 
-#visual-novel-wrapper {
+#visual-novel-wrapper,
+#visual-novel-plus-wrapper {
 	contain: layout style;
 }
 

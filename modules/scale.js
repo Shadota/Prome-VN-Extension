@@ -76,6 +76,16 @@ export function applyScale() {
 			$(d).removeClass("prome-sprite-scale");
 		}
 	}
+
+	// Also handle Expressions+ elements
+	const expressionsPlusSprites = $(".expression-plus-holder");
+	for (const d of expressionsPlusSprites) {
+		if (extension_settings[extensionName].scaleSprites) {
+			$(d).addClass("prome-sprite-scale");
+		} else {
+			$(d).removeClass("prome-sprite-scale");
+		}
+	}
 }
 
 export function setupScaleHTML() {
