@@ -179,6 +179,23 @@ body.waifuMode .expression-plus-holder img.expression-plus {
 	max-height: 56% !important;
 }
 
+/* User sprite sizing to match Expressions+ character sprite */
+body.waifuMode #expression-prome-user {
+	max-height: 90vh;
+	max-width: 90vw;
+	height: 90vh;
+	width: fit-content;
+	align-items: flex-start;
+}
+
+body.waifuMode #expression-prome-user img {
+	object-position: center top;
+	object-fit: contain;
+	max-height: 56%;
+	height: 100%;
+	width: auto;
+}
+
 body.waifuMode.emulateSprites #visual-novel-wrapper .hidden:not(.displayNone),
 body.waifuMode.emulateSprites #visual-novel-plus-wrapper .hidden:not(.displayNone) {
 	display: inherit !important;
