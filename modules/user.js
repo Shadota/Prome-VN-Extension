@@ -98,13 +98,10 @@ export async function handleUserSprite() {
 		// Check if Prome's Expression Image IMG is in the Expression Holder Div
 		let promeExpression = expressionHolder.children("#expression-prome-user");
 		if (promeExpression.length === 0) {
-			// Use appropriate class based on which extension is active
-			const holderClass = useExpressionsPlus
-				? "expression-plus-holder"
-				: "expression-holder";
-			const html = `<div id="expression-prome-user" class="${holderClass} displayNone">
+			// Always use expression-holder class to avoid Expressions+ treating it as a character
+			const html = `<div id="expression-prome-user" class="expression-holder displayNone">
 					<div id="expression-prome-userheader" class="fa-solid fa-grip drag-grabber"></div>
-					<img id="expression-image" class="${useExpressionsPlus ? 'expression-plus' : ''}" src=""/>
+					<img id="expression-image" class="" src=""/>
 				</div>`;
 
 			expressionHolder.append(html);
