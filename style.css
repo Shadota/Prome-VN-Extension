@@ -157,7 +157,7 @@ body.waifuMode.spriteScale .prome-sprite-scale {
  * Prome Sprite Vertical Offset (for tightly cropped sprites)
  */
 body.waifuMode .expression-plus-holder {
-	bottom: 12% !important;
+	bottom: 30% !important;
 }
 
 body.waifuMode.spriteScale.spriteZoom .prome-sprite-scale.prome-sprite-focus {
